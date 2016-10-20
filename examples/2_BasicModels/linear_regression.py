@@ -5,11 +5,19 @@ Author: Aymeric Damien
 Project: https://github.com/aymericdamien/TensorFlow-Examples/
 '''
 
+'''
+线性回归
+一条直线模型产生的点，我戏称这条直线是样本集的母线，一般来说会围绕在母线附近，回归的目的针对当前样本集找出一条最优可能的直线做他们的母线，从概率上将就是使得P(这条直线|这个样本集)的值是最大的
+'''
+
 from __future__ import print_function
 
 import tensorflow as tf
 import numpy
+''' 绘图库，方便的模型、过程和结果可视化 '''
 import matplotlib.pyplot as plt
+
+''' numpy提供的随机函数，特别方便，有各种分布类型可选 '''
 rng = numpy.random
 
 # Parameters
@@ -25,19 +33,43 @@ train_Y = numpy.asarray([1.7,2.76,2.09,3.19,1.694,1.573,3.366,2.596,2.53,1.221,
 n_samples = train_X.shape[0]
 
 # tf Graph Input
+# 写tf.float32最好
 X = tf.placeholder("float")
 Y = tf.placeholder("float")
 
 # Set model weights
+'''
+randn标准正态分布随机发生器，randn() 只产生一个数，randn(1)则产生一个一维数组，只包含一个数, randn(d0, d1, d2, ...)可以产生多维数组
+Variable(初始化值)
+也可以使用tf.truncated_normal
+
+'''
 W = tf.Variable(rng.randn(), name="weight")
 b = tf.Variable(rng.randn(), name="bias")
 
 # Construct a linear model
+# pred = X * W + b
 pred = tf.add(tf.mul(X, W), b)
 
 # Mean squared error
+'''
+ 最小二乘作为成本函数, 找个一个直线的最佳参数组合
 cost = tf.reduce_sum(tf.pow(pred-Y, 2))/(2*n_samples)
-# Gradient descent
+ Gradient descent
+ 梯度下降优化器
+ 也可以尝试AdamOptimizer
+ @@Optimizer
+  
+全部的优化器  
+    @@GradientDescentOptimizer
+    @@AdadeltaOptimizer
+    @@AdagradOptimizer
+    @@AdagradDAOptimizer
+    @@MomentumOptimizer
+    @@AdamOptimizer
+    @@FtrlOptimizer
+    @@RMSPropOptimizer
+'''
 optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
 
 # Initializing the variables
