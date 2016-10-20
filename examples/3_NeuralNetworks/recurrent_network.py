@@ -5,6 +5,7 @@ Long Short Term Memory paper: http://deeplearning.cs.cmu.edu/pdfs/Hochreiter97_l
 
 Author: Aymeric Damien
 Project: https://github.com/aymericdamien/TensorFlow-Examples/
+终于来到RNN
 '''
 
 from __future__ import print_function
@@ -21,6 +22,8 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 To classify images using a recurrent neural network, we consider every image
 row as a sequence of pixels. Because MNIST image shape is 28*28px, we will then
 handle 28 sequences of 28 steps for every sample.
+作者将RNN用在了MNIST上，看看能玩出什么花样？
+将图像的每一行当成一个sequence,28行对应28个sequences
 '''
 
 # Parameters

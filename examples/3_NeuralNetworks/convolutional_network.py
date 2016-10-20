@@ -1,3 +1,4 @@
+#coding:utf-8
 '''
 A Convolutional Network implementation example using TensorFlow library.
 This example is using the MNIST database of handwritten digits
@@ -5,6 +6,7 @@ This example is using the MNIST database of handwritten digits
 
 Author: Aymeric Damien
 Project: https://github.com/aymericdamien/TensorFlow-Examples/
+卷积神经网络，由于权重的减少，可以支持更大规模的深度网络的训练
 '''
 
 from __future__ import print_function
@@ -17,6 +19,7 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 
 # Parameters
 learning_rate = 0.001
+''' 居然要这么大的迭代次数 '''
 training_iters = 200000
 batch_size = 128
 display_step = 10
@@ -29,17 +32,24 @@ dropout = 0.75 # Dropout, probability to keep units
 # tf Graph input
 x = tf.placeholder(tf.float32, [None, n_input])
 y = tf.placeholder(tf.float32, [None, n_classes])
+
+''' keep_prob用于dropout，dropout的目的是减少过拟合，他的实现方法是在训练的过程中，随机的去掉一些链接，这个keep_prob算是一个hyper parameter超级参数，有很多经验值可用 '''
 keep_prob = tf.placeholder(tf.float32) #dropout (keep probability)
 
 
 # Create some wrappers for simplicity
+''' 生成一个卷积层, stride代表卷积核的每次滑动距离 '''
 def conv2d(x, W, b, strides=1):
     # Conv2D wrapper, with bias and relu activation
+    '''
+    conv2d详解
+    TODO
+    '''
     x = tf.nn.conv2d(x, W, strides=[1, strides, strides, 1], padding='SAME')
     x = tf.nn.bias_add(x, b)
     return tf.nn.relu(x)
 
-
+''' 池化层，这是一个2x2的池化，也就是前一层每四个神经元的输出映射到下一层的一个神经元的输入，进而将神经元数量压缩到原来的四分之一，减少后续层处理问题所需的计算量 '''
 def maxpool2d(x, k=2):
     # MaxPool2D wrapper
     return tf.nn.max_pool(x, ksize=[1, k, k, 1], strides=[1, k, k, 1],
@@ -47,6 +57,12 @@ def maxpool2d(x, k=2):
 
 
 # Create model
+'''
+该卷积网络由卷积层+2x2池化层+卷积层+2x2池化层+一层全连接+输出层组成
+dropout发生在全连接层
+因而由四组权重值：分别是卷积1层权重，卷积2层权重，全连接层权重，输出层权重
+http://neuralnetworksanddeeplearning.com/chap6.html
+'''
 def conv_net(x, weights, biases, dropout):
     # Reshape input picture
     x = tf.reshape(x, shape=[-1, 28, 28, 1])
@@ -74,6 +90,7 @@ def conv_net(x, weights, biases, dropout):
     return out
 
 # Store layers weight & bias
+''' 卷积核大小5x5，通过两次池化28x28的输入变成了7x7的输入，全连接层有1024个输出，一般理解为1024个高维特征'''
 weights = {
     # 5x5 conv, 1 input, 32 outputs
     'wc1': tf.Variable(tf.random_normal([5, 5, 1, 32])),
@@ -96,6 +113,7 @@ biases = {
 pred = conv_net(x, weights, biases, keep_prob)
 
 # Define loss and optimizer
+''' 依旧使用softmax交叉熵cost和Adam优化器 '''
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 

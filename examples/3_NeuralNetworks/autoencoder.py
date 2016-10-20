@@ -8,6 +8,8 @@ References:
     86(11):2278-2324, November 1998.
 Links:
     [MNIST Dataset] http://yann.lecun.com/exdb/mnist/
+
+自动编码器
 """
 from __future__ import division, print_function, absolute_import
 
@@ -49,6 +51,7 @@ biases = {
 
 
 # Building the encoder
+''' 网络的构建与之前的MLP基本相似 '''
 def encoder(x):
     # Encoder Hidden layer with sigmoid activation #1
     layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['encoder_h1']),
@@ -70,6 +73,7 @@ def decoder(x):
     return layer_2
 
 # Construct model
+''' 既有编码器，又有解码器，编码器和解码器中间夹着中间层，中间层就是我们训练出来的关键特征层 '''
 encoder_op = encoder(X)
 decoder_op = decoder(encoder_op)
 
@@ -79,7 +83,9 @@ y_pred = decoder_op
 y_true = X
 
 # Define loss and optimizer, minimize the squared error
+''' 最小二乘做cost，为了保证输入和输出的相同，这和交叉熵的目的是不同的，搞清楚哦 '''
 cost = tf.reduce_mean(tf.pow(y_true - y_pred, 2))
+''' RMSPropOptimizer什么东西？ '''
 optimizer = tf.train.RMSPropOptimizer(learning_rate).minimize(cost)
 
 # Initializing the variables
@@ -108,6 +114,7 @@ with tf.Session() as sess:
         y_pred, feed_dict={X: mnist.test.images[:examples_to_show]})
     # Compare original images with their reconstructions
     f, a = plt.subplots(2, 10, figsize=(10, 2))
+    ''' 对比显示处理前和处理后的图像 '''
     for i in range(examples_to_show):
         a[0][i].imshow(np.reshape(mnist.test.images[i], (28, 28)))
         a[1][i].imshow(np.reshape(encode_decode[i], (28, 28)))
