@@ -90,6 +90,7 @@ with tf.name_scope('Accuracy'):
 # Initializing the variables
 init = tf.initialize_all_variables()
 
+''' 可视化手段 '''
 # Create a summary to monitor cost tensor
 tf.scalar_summary("loss", loss)
 # Create a summary to monitor accuracy tensor

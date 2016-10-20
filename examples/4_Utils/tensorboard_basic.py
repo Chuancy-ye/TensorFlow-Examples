@@ -34,6 +34,7 @@ b = tf.Variable(tf.zeros([10]), name='Bias')
 
 # Construct model and encapsulating all ops into scopes, making
 # Tensorboard's Graph visualization more convenient
+''' scope的概念 '''
 with tf.name_scope('Model'):
     # Model
     pred = tf.nn.softmax(tf.matmul(x, W) + b) # Softmax
@@ -57,6 +58,8 @@ tf.scalar_summary("loss", cost)
 tf.scalar_summary("accuracy", acc)
 # Merge all summaries into a single op
 merged_summary_op = tf.merge_all_summaries()
+
+''' 方便的管理tensor们 '''
 
 # Launch the graph
 with tf.Session() as sess:

@@ -5,12 +5,15 @@ Long Short Term Memory paper: http://deeplearning.cs.cmu.edu/pdfs/Hochreiter97_l
 
 Author: Aymeric Damien
 Project: https://github.com/aymericdamien/TensorFlow-Examples/
-终于来到RNN
+
+终于来到RNN，其实这里就是LSTM
+官方教程: https://www.tensorflow.org/versions/r0.11/tutorials/recurrent/index.html
 '''
 
 from __future__ import print_function
 
 import tensorflow as tf
+''' RNN包 '''
 from tensorflow.python.ops import rnn, rnn_cell
 import numpy as np
 
@@ -22,6 +25,7 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 To classify images using a recurrent neural network, we consider every image
 row as a sequence of pixels. Because MNIST image shape is 28*28px, we will then
 handle 28 sequences of 28 steps for every sample.
+
 作者将RNN用在了MNIST上，看看能玩出什么花样？
 将图像的每一行当成一个sequence,28行对应28个sequences
 '''
@@ -65,6 +69,7 @@ def RNN(x, weights, biases):
     x = tf.split(0, n_steps, x)
 
     # Define a lstm cell with tensorflow
+    ''' lstm_size = n_hidden'''
     lstm_cell = rnn_cell.BasicLSTMCell(n_hidden, forget_bias=1.0)
 
     # Get lstm cell output

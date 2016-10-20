@@ -69,6 +69,7 @@ t2_1 = datetime.datetime.now()
 Multi GPU computing
 '''
 # GPU:0 computes A^n
+''' 将一个变量绑定到一个特定设备上，如CPU或GPU '''
 with tf.device('/gpu:0'):
     # Compute A^n and store result in c2
     a = tf.placeholder(tf.float32, [10000, 10000])

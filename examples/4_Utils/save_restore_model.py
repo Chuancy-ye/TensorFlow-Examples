@@ -67,6 +67,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(cost)
 init = tf.initialize_all_variables()
 
 # 'Saver' op to save and restore all the variables
+''' 整个文件的关键点 tf.train.Saver() save, restore两个方法'''
 saver = tf.train.Saver()
 
 # Running first session
