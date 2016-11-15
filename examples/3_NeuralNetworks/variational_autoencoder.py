@@ -1,14 +1,7 @@
 # -*- coding: utf-8 -*-
 
-""" Varational Auto Encoder Example.
-Using an auto encoder on MNIST handwritten digits.
-References:
-    Y. LeCun, L. Bottou, Y. Bengio, and P. Haffner. "Gradient-based
-    learning applied to document recognition." Proceedings of the IEEE,
-    86(11):2278-2324, November 1998.
-Links:
-    [MNIST Dataset] http://yann.lecun.com/exdb/mnist/
-
+"""
+Varational Auto Encoder Example.
 变分自动编码器
 """
 from __future__ import division, print_function, absolute_import
@@ -26,7 +19,7 @@ mnist = input_data.read_data_sets("/tmp/data/", one_hot=True)
 class Layer:
   def __init__(self, input, n_output):
     self.input = input
-    W = tf.Variable(tf.random_normal([ int(self.input.get_shape()[1]), n_output ], stddev = 0.001))#tf.shape(input)[0]
+    W = tf.Variable(tf.truncated_normal([ int(self.input.get_shape()[1]), n_output ], stddev = 0.001))#tf.shape(input)[0]
     b = tf.Variable(tf.constant(0., shape = [ n_output ]))
 
     self.raw_output = tf.matmul(input, W) + b
@@ -35,7 +28,7 @@ class Layer:
 
 # 样本集X
 n_X = 784 # 28 * 28
-n_z = 100
+n_z = 20 # latent variable count
 X = tf.placeholder(tf.float32, shape = [ None, n_X ])
 
 # Encoder
@@ -45,17 +38,18 @@ ENCODER_HIDDEN_COUNT = 400
 mu = Layer(Layer(X, ENCODER_HIDDEN_COUNT).output, n_z).raw_output
 
 ## \Sigma(X) 采用二层网络
-sigma = Layer(Layer(X, ENCODER_HIDDEN_COUNT).output, n_z).raw_output
+log_sigma = Layer(Layer(X, ENCODER_HIDDEN_COUNT).output, n_z).raw_output # 为了训练不出nan? 至少实验的时候，直接让这个网络代表sigma是算不出来的，请高人指点!!!
+sigma = tf.exp(log_sigma)
 
 ## KLD = D[N(mu(X), sigma(X))||N(0, I)] = 1/2 * sum(sigma_i + mu_i^2 - log(sigma_i) - 1)
-KLD = 0.5 * tf.reduce_sum(sigma + tf.pow(mu, 2) - tf.log(sigma) - 1, reduction_indices = 1) # reduction_indices = 1代表按照每个样本计算一条KLD
+KLD = 0.5 * tf.reduce_sum(sigma + tf.pow(mu, 2) - log_sigma - 1, reduction_indices = 1) # reduction_indices = 1代表按照每个样本计算一条KLD
 
 
 # epsilon = N(0, I) 采样模块
 epsilon = tf.random_normal(tf.shape(sigma), name = 'epsilon')
 
 # z = mu + sigma^ 0.5 * epsilon
-z = mu + tf.pow(sigma, 0.5) * epsilon
+z = mu + tf.exp(0.5 * log_sigma) * epsilon
 
 # Decoder ||f(z) - X|| ^ 2 重建的X与X的欧式距离，更加成熟的做法是使用crossentropy
 def buildDecoderNetwork(z):
